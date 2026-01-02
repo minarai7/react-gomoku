@@ -1,0 +1,232 @@
+:root{
+  /* board */
+  --wood: #d2a46a;
+  --wood-dark: #b98550;
+
+  /* complementary background (approx complement of #d2a46a) */
+  --bg: #1f365e;             /* muted blue */
+  --bg-2: #15233e;           /* deeper blue for depth */
+
+  /* UI */
+  --panel: rgba(12, 16, 24, .55);
+  --border: rgba(255,255,255,.14);
+
+  --text: rgba(255,255,255,.92);
+  --muted: rgba(255,255,255,.72);
+
+  /* sizing tuned for 15x15 */
+  --cell: 32px;
+  --gap: 5px;
+  --radius: 14px;
+  --shadow: 0 18px 40px rgba(0,0,0,.35);
+
+  --stone: 78%;
+}
+
+body{
+  margin:0;
+  padding:24px;
+  min-height:100vh;
+  color:var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans";
+
+  /* low brightness but not zero */
+  background:
+    radial-gradient(900px 600px at 15% 15%, rgba(255,255,255,.06), transparent 60%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+}
+
+/* ---------- layout: 2 columns (left: status+board, right: history) ---------- */
+.game{
+  display:grid;
+  grid-template-columns: 1fr 320px; /* left grows, right fixed */
+  gap: 18px;
+  align-items: start;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+@media (max-width: 980px){
+  .game{
+    grid-template-columns: 1fr;
+  }
+}
+
+/* left column stacks status + board */
+.game-board{
+  display:flex;
+  flex-direction: column;
+  align-items: flex-start;  /* left aligned */
+  gap: 12px;                /* space between status and board */
+}
+
+/* keep board left (no centering now) */
+.board{
+  position: relative;
+  padding: 14px;
+  width: fit-content;
+  border-radius: var(--radius);
+  overflow: hidden;
+
+  background: var(--wood);
+  border: 2px solid rgba(0,0,0,.25);
+  box-shadow: var(--shadow);
+}
+
+/* remove any leftover pseudo layers */
+.board::before{ content:none; }
+.board::after{ content:none; }
+
+/* status: make it match the new background and feel “card-like” */
+.status{
+  width: fit-content;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(0,0,0,.22);
+  color: var(--muted);
+  box-shadow: 0 10px 22px rgba(0,0,0,.18);
+}
+.status strong{ color: var(--text); }
+
+/* ---------- board grid ---------- */
+.board-row{
+  display:flex;
+  gap: var(--gap);
+}
+.board-row + .board-row{ margin-top: var(--gap); }
+
+.square{
+  width: var(--cell);
+  height: var(--cell);
+  position: relative;
+
+  display:grid;
+  place-items:center;
+
+  border-radius: 10px;
+  border: 1px solid rgba(0,0,0,.14);
+  background: rgba(255,255,255,.10);
+
+  cursor: pointer;
+  user-select:none;
+  padding:0;
+
+  transition: transform 120ms ease, background 120ms ease, box-shadow 120ms ease, border-color 120ms ease;
+}
+
+.square:not(.blackSquare):not(.whiteSquare):hover{
+  transform: translateY(-1px);
+  background: rgba(255,255,255,.14);
+  border-color: rgba(0,0,0,.18);
+  box-shadow: 0 10px 18px rgba(0,0,0,.18);
+}
+
+.square:active{ transform: translateY(0) scale(.98); }
+.square:focus{ outline:none; }
+.square:focus-visible{ box-shadow: 0 0 0 3px rgba(255,255,255,.12); }
+
+/* stones */
+.square.blackSquare::before,
+.square.whiteSquare::before{
+  content:"";
+  width: var(--stone);
+  height: var(--stone);
+  border-radius: 999px;
+  display:block;
+  animation: stone-in 120ms ease-out;
+}
+
+.square.blackSquare::before{
+  background: #0b0c10;
+  box-shadow:
+    0 7px 14px rgba(0,0,0,.35),
+    inset 0 0 0 1px rgba(255,255,255,.06);
+}
+.square.whiteSquare::before{
+  background: #f4f5f7;
+  box-shadow:
+    0 7px 14px rgba(0,0,0,.22),
+    inset 0 0 0 1px rgba(0,0,0,.10);
+}
+.square.blackSquare,
+.square.whiteSquare{
+  cursor: default;
+  background: rgba(255,255,255,.08);
+}
+
+@keyframes stone-in{
+  from { transform: scale(.78); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
+
+/* winning line */
+.square.win{
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.55);
+  border-color: rgba(255, 215, 0, 0.6);
+}
+@keyframes win-pulse{
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.15); }
+}
+.square.win::before{
+  transform: scale(1.06);
+  box-shadow:
+    0 10px 18px rgba(0,0,0,.28),
+    0 0 0 4px rgba(255, 215, 0, 0.35),
+    inset 0 0 0 1px rgba(255,255,255,.08);
+  animation: stone-in 120ms ease-out, win-pulse 900ms ease-in-out infinite;
+}
+
+/* ---------- history panel (no default buttons) ---------- */
+.game-info{
+  padding: 14px 14px 16px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+
+.game-info ol{
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+}
+
+/* style history buttons like modern list items */
+.game-info li button{
+  width: 100%;
+  text-align: left;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+
+  padding: 10px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+
+  transition: transform 120ms ease, background 120ms ease, border-color 120ms ease, box-shadow 120ms ease;
+}
+
+.game-info li button:hover{
+  background: rgba(255,255,255,.10);
+  border-color: rgba(255,255,255,.20);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 18px rgba(0,0,0,.18);
+}
+
+.game-info li button:active{
+  transform: translateY(0) scale(.99);
+}
+
+.game-info li button:focus{ outline:none; }
+.game-info li button:focus-visible{
+  box-shadow: 0 0 0 3px rgba(255,255,255,.14);
+}
