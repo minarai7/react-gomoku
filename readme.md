@@ -23,13 +23,13 @@ React を用いて実装した五目並べ（Gomoku）の Web アプリケーシ
 https://react-gomoku-pink.vercel.app/
 
 ### 盤面
-![board](./screenshots/board.png)
+<img src="./screenshots/board.png" width="600" />
 
 ### 勝利時
-![winning](./screenshots/winning.png)
+<img src="./screenshots/winning.png" width="600" />
 
 ### 履歴（時間遡行）
-![history](./screenshots/history.png)
+<img src="./screenshots/history.png" width="600" />
 
 ---
 
